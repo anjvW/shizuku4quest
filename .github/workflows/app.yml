@@ -34,12 +34,15 @@ jobs:
           echo KEYSTORE_FILE=../key.jks >> signing.properties
           echo ${{ secrets.KEYSTORE }} | base64 --decode > key.jks
       - name: Write temporary key
-        if: hashFiles('key.jks') == ''
+        if: github.event_name == 'pull_request' || github.ref != 'refs/heads/master'
         run: |
-          keytool -genkey -alias a -dname CN=_ -storepass passwd -keypass passwd -keystore key.jks
-          echo KEYSTORE_PASSWORD=passwd >> signing.properties
-          echo KEYSTORE_ALIAS=a >> signing.properties
-          echo KEYSTORE_ALIAS_PASSWORD=passwd >> signing.properties
+          rm -f key.jks
+          keytool -genkeypair -alias debug -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Debug, OU=Debug, O=Debug, L=Debug, S=Debug, C=US" \
+            -storepass debugpass -keypass debugpass -keystore key.jks
+          echo KEYSTORE_PASSWORD=debugpass >> signing.properties
+          echo KEYSTORE_ALIAS=debug >> signing.properties
+          echo KEYSTORE_ALIAS_PASSWORD=debugpass >> signing.properties
           echo KEYSTORE_FILE=../key.jks >> signing.properties
       - name: Cache Gradle Dependencies
         uses: actions/cache@v3
