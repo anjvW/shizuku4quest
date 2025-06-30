@@ -36,10 +36,14 @@ android {
     buildTypes {
         debug {
             defaultConfig.minSdk 24
-            signingConfig signingConfigs.sign
+            if (!project.hasProperty('debug.unsigned')) {
+                signingConfig signingConfigs.sign
+            }
         }
         release {
-            signingConfig signingConfigs.sign
+            if (!project.hasProperty('release.unsigned')) {
+                signingConfig signingConfigs.sign
+            }
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
